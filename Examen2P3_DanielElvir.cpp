@@ -306,30 +306,35 @@ void cargarArchivo() {
 	else {
 		cerr << "No se pudo abrir el archivo para lectura." << endl;
 	}*/
-
+	Curso* a;
+	Apunte* n;
 	cout << "Cargar Archivo" << endl;
-	ifstream archivosEntrada("Apuntes.die", ios::binary);
-	if (archivosEntrada.is_open()) {
-		while (!archivosEntrada.eof()) {
-			size_t cantidad = cursos.size();
-			archivosEntrada.read(reinterpret_cast<char*>(&cantidad), sizeof(cursos.size()));
-			for (int i = 0; i < cursos.size(); i++) {
-				size_t nombre = cursos[i]->getNombre().size();
-				archivosEntrada.read(reinterpret_cast<char*>(&nombre), sizeof(string));
-				for (int j = 0; j < cursos[i]->getVector().size(); j++) {
-					size_t titulo = cursos[i]->getVector().at(j)->getTitulo().size();
-					size_t contenido = cursos[i]->getVector().at(j)->getContenido().size();
-					size_t fecha = cursos[i]->getVector().at(j)->getFecha().size();
-					archivosEntrada.read(reinterpret_cast<char*>(&titulo), sizeof(string));
-					archivosEntrada.read(reinterpret_cast<char*>(&contenido), sizeof(string));
-					archivosEntrada.read(reinterpret_cast<char*>(&fecha), sizeof(string));
-				}
+	ifstream archivoGuardar("Apuntes.die", ios::binary);
+	if (archivoGuardar.is_open()) {
+		
+		size_t cantidad = cursos.size();
+		archivoGuardar.read((char*)(&cantidad), sizeof(cursos.size()));
+
+		for (int i = 0; i < cursos.size(); i++) {
+			size_t nombre = cursos[i]->getNombre().size();
+			a->setNombre((string*)nombre);
+			archivoGuardar.read((char*)(&nombre), sizeof(string));
+			archivoGuardar.read((char*)(&a), sizeof(Curso));
+			cursos.push_back(a);
+			for (int j = 0; j < cursos[i]->getVector().size(); j++) {
+				size_t titulo = cursos[i]->getVector().at(j)->getTitulo().size();
+				size_t contenido = cursos[i]->getVector().at(j)->getContenido().size();
+				size_t fecha = cursos[i]->getVector().at(j)->getFecha().size();
+				archivoGuardar.read((char*)(&titulo), sizeof(string));
+				archivoGuardar.read((char*)(&contenido), sizeof(string));
+				archivoGuardar.read((char*)(&fecha), sizeof(string));
+				archivoGuardar.read((char*)(&n), sizeof(Apunte));
+				cursos.push_back(a);
 			}
 		}
-		
-		cout << "Cargado exitosamente" << endl;
+		cout << "Cargado exitosamente (no)" << endl;
 		cout << endl;
-		archivosEntrada.close();
+		archivoGuardar.close();
 	}
 	else {
 		cerr << "No se pudo abrir el archivo para escritura." << endl;
