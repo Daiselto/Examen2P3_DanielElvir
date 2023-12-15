@@ -37,3 +37,4 @@ string Apunte::getFecha() {
 void Apunte::setFecha(string _fecha) {
 	this->fecha = _fecha;
 }
+

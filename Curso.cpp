@@ -46,6 +46,7 @@ void Curso::listarEstosApuntes() {
 void Curso::elimnarApunteEnClase(int indice) {
 	delete apuntes[indice];
 	apuntes.erase(apuntes.begin() + indice);
-	cout << "Eliminado exitosamente" << endl;
 	cout << endl;
 }
+
+

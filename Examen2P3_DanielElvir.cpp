@@ -16,7 +16,8 @@ void crearCursos() {
 	cout << "Bienvenido a la opción de crear cursos" << endl;
 	cout << endl;
 	cout << "Ingrese el nombre del curso que está llevando: ";
-	cin >> nombre;
+	cin.ignore();
+	getline(cin, nombre);
 	curso = new Curso(nombre);
 	cursos.push_back(curso);
 }
@@ -107,11 +108,14 @@ void crearApunte() {
 		cin >> indice;
 		if (indice >= 0 && indice < cursos.size()) {
 			cout << "Ingrese el titulo del apunte: ";
-			cin >> titulo;
+			cin.ignore();
+			getline(cin, titulo);
 			cout << "Ingrese el contenido del apunte: ";
-			cin >> contenido;
+			cin.ignore();
+			getline(cin, contenido);
 			cout << "Ingrese la fecha del apunte: ";
-			cin >> fecha;
+			cin.ignore();
+			getline(cin, fecha);
 			apunte = new Apunte(titulo, contenido, fecha);
 			cursos[indice]->agregarAlVector(apunte);
 			cout << "Apunte agragado correctamente en la clase " << cursos[indice]->getNombre() << endl;
@@ -153,6 +157,7 @@ void eliminarApuntes() {
 		cin >> indice1;
 		if (indice1>=0&&indice1<cursos[indice]->getVector().size()) {
 			cursos[indice]->elimnarApunteEnClase(indice1);
+			cout << "Eliminado exitosamente" << endl;
 		}
 	}
 	else {
@@ -177,15 +182,24 @@ void combinarApuntes() {
 		cout << "Seleccione el segundo apunte: ";
 		cin >> apunte2;
 		if ((apunte1>=0&&apunte1< cursos[indice]->getVector().size())&&(apunte2 >= 0 && apunte2 < cursos[indice]->getVector().size())) {
+			Apunte* ap1 = cursos[indice]->getVector().at(apunte1);
+			Apunte* ap2 = cursos[indice]->getVector().at(apunte2);
 			cout << "Ingrese la fecha del apunte combinado: ";
-			cin >> nFecha;
-			nTitulo = cursos[indice]->getVector()[apunte1]->getTitulo() + " + " + cursos[indice]->getVector()[apunte2]->getTitulo();
-			nContenido = cursos[indice]->getVector()[apunte1]->getContenido() + " + " + cursos[indice]->getVector()[apunte2]->getContenido();
+			cin.ignore();
+			getline(cin, nFecha);
+			nTitulo=ap1->getTitulo() + " + " + ap2->getTitulo();
+			nContenido=ap1->getContenido() + " + " + ap2->getContenido();
 			nApunte = new Apunte(nTitulo, nContenido, nFecha);
 			cursos[indice]->agregarAlVector(nApunte);
 			cursos[indice]->elimnarApunteEnClase(apunte1);
 			cursos[indice]->elimnarApunteEnClase(apunte2);
 		}
+		else {
+			cout << "Esos apuntes no existen en la clase" << endl;
+		}
+	}
+	else {
+		cout << "Ese curso no existe" << endl;
 	}
 }
 
@@ -232,10 +246,16 @@ void submenuApuntes() {
 }
 
 void guardarArchivo() {
-	ofstream archivoGuardar("Apuntes.die", ios::binary);
+	ofstream archivoGuardar("Apuntes.die", ios::binary);	
 	if (archivoGuardar.is_open()) {
-		for (const Curso* cur : cursos) {
-			archivoGuardar.write(reinterpret_cast<const char*>(&cur), sizeof(Curso));
+		size_t cantidad = cursos.size();
+		archivoGuardar.write(reinterpret_cast<char*>(&cantidad), sizeof(cursos.size()));
+		for (int i = 0; i < cursos.size(); i++) {
+			size_t nombre = cursos[i]->getNombre().size();			
+			archivoGuardar.write(reinterpret_cast<char*>(&nombre), sizeof(nombre));
+			for (int i = 0; i < cursos[i]->getVector().size(); i++) {
+				size_t 
+			}
 		}
 		archivoGuardar.close();
 	}
@@ -289,6 +309,10 @@ void menu() {
 		case 5:
 			cout << "Saliendo..." << endl;
 			cout << endl;
+			guardarArchivo();
+			for (int i = 0; i < cursos.size(); i++) {
+				delete cursos[i];
+			}
 			seguir = false;
 			break;
 		default:

@@ -16,5 +16,5 @@ public:
 	void agregarAlVector(Apunte* _apunte);
 	void listarEstosApuntes();
 	void elimnarApunteEnClase(int);
-
+	
 };
