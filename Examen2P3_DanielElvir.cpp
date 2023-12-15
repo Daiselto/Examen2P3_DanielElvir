@@ -5,11 +5,12 @@
 #include "Apunte.h"
 using namespace std;
 
+//variables que se usan en todo el programa
 static vector<Curso*> cursos;
 Curso* curso;
 Apunte* apunte;
-Apunte* nApunte;
 
+//Crea los cursos y los manda directamente al vector
 void crearCursos() {
 	cout << endl;
 	string nombre;
@@ -22,6 +23,7 @@ void crearCursos() {
 	cursos.push_back(curso);
 }
 
+//lista los cursos dentro del vector
 void listarCursos() {
 	if (cursos.size()>0) {
 		cout << endl;
@@ -37,6 +39,7 @@ void listarCursos() {
 	}	
 }
 
+//elimina cursos dentro del vector
 void eliminarCursos() {
 	if (cursos.size()>0) {
 		int indice;
@@ -60,6 +63,7 @@ void eliminarCursos() {
 	}
 }
 
+//El menu que sale a la hora de entrar a las operaciones de curso
 void submenuCurso() {
 	int opcion;
 	bool seguir = true;
@@ -95,6 +99,7 @@ void submenuCurso() {
 		
 }
 
+//Crea los apuntes y los manda al vector de la clase Curso
 void crearApunte() {
 	if (cursos.size()>0) {
 		int indice;
@@ -111,10 +116,8 @@ void crearApunte() {
 			cin.ignore();
 			getline(cin, titulo);
 			cout << "Ingrese el contenido del apunte: ";
-			cin.ignore();
 			getline(cin, contenido);
 			cout << "Ingrese la fecha del apunte: ";
-			cin.ignore();
 			getline(cin, fecha);
 			apunte = new Apunte(titulo, contenido, fecha);
 			cursos[indice]->agregarAlVector(apunte);
@@ -132,6 +135,7 @@ void crearApunte() {
 	}
 }
 
+//lista los apuntes dependiendo del curso seleccionado
 void listarApuntes() {
 	int indice;
 	listarCursos();
@@ -145,6 +149,7 @@ void listarApuntes() {
 	}
 }
 
+//elimina el apunte seleccionado dentro del curso seleccionado
 void eliminarApuntes() {
 	int indice;
 	int indice1;
@@ -165,6 +170,7 @@ void eliminarApuntes() {
 	}
 }
 
+//agarra 2 apuntes de un curso y los vuelve uno solo, quitandolos del vector y agregando el nuevo
 void combinarApuntes() {
 	int indice;
 	int apunte1;
@@ -189,10 +195,20 @@ void combinarApuntes() {
 			getline(cin, nFecha);
 			nTitulo=ap1->getTitulo() + " + " + ap2->getTitulo();
 			nContenido=ap1->getContenido() + " + " + ap2->getContenido();
-			nApunte = new Apunte(nTitulo, nContenido, nFecha);
-			cursos[indice]->agregarAlVector(nApunte);
-			cursos[indice]->elimnarApunteEnClase(apunte1);
-			cursos[indice]->elimnarApunteEnClase(apunte2);
+			Apunte* nApunte = new Apunte(nTitulo, nContenido, nFecha);
+			if (apunte1 > apunte2) {
+				cursos[indice]->agregarAlVector(nApunte);
+				cursos[indice]->elimnarApunteEnClase(apunte1);
+				cursos[indice]->elimnarApunteEnClase(apunte2);
+			}
+			else if (apunte2 > apunte1) {
+				cursos[indice]->agregarAlVector(nApunte);
+				cursos[indice]->elimnarApunteEnClase(apunte2);
+				cursos[indice]->elimnarApunteEnClase(apunte1);
+			}
+				
+			//cursos[indice]->elimnarApunteEnClase(apunte1);
+			//cursos[indice]->elimnarApunteEnClase(apunte2);
 		}
 		else {
 			cout << "Esos apuntes no existen en la clase" << endl;
@@ -203,6 +219,7 @@ void combinarApuntes() {
 	}
 }
 
+//submenu que sale a la hora de escoger la operacion apuntes
 void submenuApuntes() {
 	if (cursos.size() > 0) {
 		int opcion;
@@ -245,18 +262,27 @@ void submenuApuntes() {
 	}			
 }
 
+//metodo para guardar archivos en el binario 
 void guardarArchivo() {
+	cout << "Guardar archivo" << endl;
 	ofstream archivoGuardar("Apuntes.die", ios::binary);	
 	if (archivoGuardar.is_open()) {
 		size_t cantidad = cursos.size();
-		archivoGuardar.write(reinterpret_cast<char*>(&cantidad), sizeof(cursos.size()));
+		archivoGuardar.write((char*)(&cantidad), sizeof(cursos.size()));
 		for (int i = 0; i < cursos.size(); i++) {
 			size_t nombre = cursos[i]->getNombre().size();			
-			archivoGuardar.write(reinterpret_cast<char*>(&nombre), sizeof(nombre));
-			for (int i = 0; i < cursos[i]->getVector().size(); i++) {
-				size_t 
+			archivoGuardar.write((char*)(&nombre), sizeof(string));
+			for (int j = 0; j < cursos[i]->getVector().size(); j++) {
+				size_t titulo = cursos[i]->getVector().at(j)->getTitulo().size();
+				size_t contenido = cursos[i]->getVector().at(j)->getContenido().size();
+				size_t fecha = cursos[i]->getVector().at(j)->getFecha().size();
+				archivoGuardar.write((char*)(&titulo), sizeof(string));
+				archivoGuardar.write((char*)(&contenido), sizeof(string));
+				archivoGuardar.write((char*)(&fecha), sizeof(string));
 			}
 		}
+		cout << "Guardado exitosamente" << endl;
+		cout << endl;
 		archivoGuardar.close();
 	}
 	else {
@@ -264,8 +290,9 @@ void guardarArchivo() {
 	}
 }
 
+//lee los archivos y los manda al vector
 void cargarArchivo() {
-	ifstream archivoEntrada("Apuntes.die", ios::binary);
+	/*ifstream archivoEntrada("Apuntes.die", ios::binary);
 	if (archivoEntrada.is_open()) {
 		while (!archivoEntrada.eof()) {
 			Curso* man;
@@ -278,6 +305,34 @@ void cargarArchivo() {
 	}
 	else {
 		cerr << "No se pudo abrir el archivo para lectura." << endl;
+	}*/
+
+	cout << "Cargar Archivo" << endl;
+	ifstream archivosEntrada("Apuntes.die", ios::binary);
+	if (archivosEntrada.is_open()) {
+		while (!archivosEntrada.eof()) {
+			size_t cantidad = cursos.size();
+			archivosEntrada.read(reinterpret_cast<char*>(&cantidad), sizeof(cursos.size()));
+			for (int i = 0; i < cursos.size(); i++) {
+				size_t nombre = cursos[i]->getNombre().size();
+				archivosEntrada.read(reinterpret_cast<char*>(&nombre), sizeof(string));
+				for (int j = 0; j < cursos[i]->getVector().size(); j++) {
+					size_t titulo = cursos[i]->getVector().at(j)->getTitulo().size();
+					size_t contenido = cursos[i]->getVector().at(j)->getContenido().size();
+					size_t fecha = cursos[i]->getVector().at(j)->getFecha().size();
+					archivosEntrada.read(reinterpret_cast<char*>(&titulo), sizeof(string));
+					archivosEntrada.read(reinterpret_cast<char*>(&contenido), sizeof(string));
+					archivosEntrada.read(reinterpret_cast<char*>(&fecha), sizeof(string));
+				}
+			}
+		}
+		
+		cout << "Cargado exitosamente" << endl;
+		cout << endl;
+		archivosEntrada.close();
+	}
+	else {
+		cerr << "No se pudo abrir el archivo para escritura." << endl;
 	}
 }
 
@@ -309,10 +364,15 @@ void menu() {
 		case 5:
 			cout << "Saliendo..." << endl;
 			cout << endl;
+			//guarda el archivo a la hora de salir por si acaso
 			guardarArchivo();
+			//borra memoria del vector
 			for (int i = 0; i < cursos.size(); i++) {
 				delete cursos[i];
 			}
+			//borra memoria de las variables generales
+			delete curso;
+			delete apunte;
 			seguir = false;
 			break;
 		default:
@@ -327,6 +387,8 @@ void menu() {
 }
 
 int main() {
+	//para que salgan tildes en consola
 	setlocale(LC_ALL, "spanish");
+	//llamado a la funcion que tiene todo el programa
 	menu();
 }
