@@ -11,7 +11,10 @@ public:
 	Curso(string _nombre);
 	~Curso();
 	string getNombre();
+	vector<Apunte*> getVector();
 	void setNombre(string _nombre);
 	void agregarAlVector(Apunte* _apunte);
-};
+	void listarEstosApuntes();
+	void elimnarApunteEnClase(int);
 
+};
